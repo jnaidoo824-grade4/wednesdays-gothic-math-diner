@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Wednesday's Gothic Math Diner</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; text-align: center; background: #1a1a24; color: #e0e0e0; margin: 0; padding: 20px; }
+    .card { background: #262636; max-width: 400px; margin: 0 auto; padding: 20px; border-radius: 16px; border: 2px solid #6b5b95; box-shadow: 0 8px 32px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+    h1 { color: #b19ffb; font-size: 22px; margin-bottom: 4px; }
+    p { color: #a0a0b0; font-size: 15px; }
+    .challenge-banner { background: #3b2d54; color: #d4bfff; padding: 8px; border-radius: 8px; font-weight: bold; margin-bottom: 10px; display: none; }
+    canvas { background: #181820; cursor: pointer; touch-action: none; margin: 10px 0; border-radius: 50%; border: 3px solid #4a3b69; }
+    .btn { background: #6b5b95; color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 25px; cursor: pointer; transition: transform 0.1s; }
+    .btn:active { transform: scale(0.95); }
+    .btn-wa { background: #25D366; margin-top: 12px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+    .stats-bar { display: flex; justify-content: space-around; font-size: 16px; font-weight: bold; color: #ffd700; margin: 10px 0; }
+    #confetti-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <canvas id="confetti-canvas"></canvas>
+  <div id="challenge-banner" class="challenge-banner">⚡ Beat the WhatsApp Challenge Score!</div>
+  
+  <h1>🕷️ Wednesday's Gothic Diner</h1>
+  <p>Chef Mortis: Serve <strong id="target-text" style="color: #b19ffb;">6/8</strong> of the Midnight Pizza!</p>
+  
+  <canvas id="pizza" width="280" height="280"></canvas>
+  
+  <div class="stats-bar">
+    <span>Selected: <span id="current-fraction" style="color: white;">0/8</span></span>
+    <span>🪙 Coins: <span id="coin-count">0</span></span>
+  </div>
+  
+  <button id="submit-btn" class="btn" onclick="checkAnswer()">Serve Order 🦇</button>
+  <br>
+  <button class="btn btn-wa" onclick="shareToWhatsApp()">📲 Challenge Friend on WhatsApp</button>
+</div>
+
+<script>
+  // WhatsApp Challenge Handler
+  const urlParams = new URLSearchParams(window.location.search);
+  const challengeScore = urlParams.get('challengeScore');
+  let currentCoins = parseInt(localStorage.getItem('diner_coins') || '0');
+  document.getElementById('coin-count').innerText = currentCoins;
+
+  if (challengeScore) {
+    const banner = document.getElementById('challenge-banner');
+    banner.style.display = 'block';
+    banner.innerText = `⚡ WhatsApp Challenge: Beat high score of ${challengeScore} pts!`;
+  }
+
+  // Audio Synthesizer
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  function playPopSound() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+  }
+
+  function playSuccessJingle() {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    [440, 554.37, 659.25, 880].forEach((freq, i) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle'; osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime + i * 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.25);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(audioCtx.currentTime + i * 0.1);
+      osc.stop(audioCtx.currentTime + i * 0.1 + 0.25);
+    });
+  }
+
+  // Confetti Particle Engine
+  const cCanvas = document.getElementById('confetti-canvas');
+  const cCtx = cCanvas.getContext('2d');
+  let particles = [];
+  function triggerConfetti() {
+    cCanvas.width = cCanvas.parentElement.clientWidth;
+    cCanvas.height = cCanvas.parentElement.clientHeight;
+    particles = [];
+    const colors = ['#b19ffb', '#6b5b95', '#ffd700', '#9c27b0', '#ffffff'];
+    for (let i = 0; i < 50; i++) {
+      particles.push({
+        x: cCanvas.width / 2, y: cCanvas.height / 2,
+        vx: (Math.random() - 0.5) * 12, vy: (Math.random() - 0.7) * 14,
+        size: Math.random() * 8 + 4, color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * 360, vRot: (Math.random() - 0.5) * 10
+      });
+    }
+    requestAnimationFrame(updateConfetti);
+  }
+
+  function updateConfetti() {
+    cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.4; p.rotation += p.vRot;
+      cCtx.save(); cCtx.translate(p.x, p.y); cCtx.rotate((p.rotation * Math.PI) / 180);
+      cCtx.fillStyle = p.color; cCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+      cCtx.restore();
+    });
+    particles = particles.filter(p => p.y < cCanvas.height);
+    if (particles.length > 0) requestAnimationFrame(updateConfetti);
+  }
+
+  // Canvas Pizza Engine
+  const totalSlices = 8, targetSlices = 6;
+  let selected = new Array(totalSlices).fill(false);
+  let sliceOffsets = new Array(totalSlices).fill(0);
+  const canvas = document.getElementById('pizza'), ctx = canvas.getContext('2d');
+
+  function draw() {
+    const center = canvas.width / 2, radius = center - 20, sliceAngle = (2 * Math.PI) / totalSlices;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let needsAnimation = false;
+
+    for (let i = 0; i < totalSlices; i++) {
+      const targetOffset = selected[i] ? 12 : 0;
+      sliceOffsets[i] += (targetOffset - sliceOffsets[i]) * 0.25;
+      if (Math.abs(targetOffset - sliceOffsets[i]) > 0.1) needsAnimation = true;
+
+      const startAngle = (i * sliceAngle) - (Math.PI / 2);
+      const endAngle = startAngle + sliceAngle;
+      const midAngle = startAngle + (sliceAngle / 2);
+
+      ctx.save();
+      ctx.translate(Math.cos(midAngle) * sliceOffsets[i], Math.sin(midAngle) * sliceOffsets[i]);
+
+      ctx.beginPath();
+      ctx.moveTo(center, center);
+      ctx.arc(center, center, radius, startAngle, endAngle);
+      ctx.closePath();
+
+      ctx.fillStyle = selected[i] ? '#6b5b95' : '#2a2a38';
+      ctx.fill();
+      ctx.strokeStyle = '#b19ffb';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      if (selected[i] || sliceOffsets[i] > 1) {
+        const topX = center + (radius * 0.6) * Math.cos(midAngle);
+        const topY = center + (radius * 0.6) * Math.sin(midAngle);
+        ctx.beginPath();
+        ctx.arc(topX, topY, 7, 0, 2 * Math.PI);
+        ctx.fillStyle = '#ffd700';
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+    if (needsAnimation) requestAnimationFrame(draw);
+  }
+
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left - canvas.width / 2;
+    const y = e.clientY - rect.top - canvas.height / 2;
+    let angle = Math.atan2(y, x) + (Math.PI / 2);
+    if (angle < 0) angle += 2 * Math.PI;
+
+    const clickedIndex = Math.floor(angle / ((2 * Math.PI) / totalSlices)) % totalSlices;
+    selected[clickedIndex] = !selected[clickedIndex];
+    playPopSound();
+    document.getElementById('current-fraction').innerText = `${selected.filter(Boolean).length}/${totalSlices}`;
+    draw();
+  });
+
+  function checkAnswer() {
+    const count = selected.filter(Boolean).length;
+    if (count === targetSlices) {
+      playSuccessJingle();
+      triggerConfetti();
+      currentCoins += 50;
+      localStorage.setItem('diner_coins', currentCoins);
+      document.getElementById('coin-count').innerText = currentCoins;
+      alert("🦇 Outstanding! Chef Mortis approves. You earned 50 Gothic Coins!");
+    } else {
+      alert("🕸️ Not quite! Pick 6 out of 8 slices to complete the order.");
+    }
+  }
+
+  function shareToWhatsApp() {
+    const baseUrl = window.location.href.split('?')[0];
+    const challengeUrl = `${baseUrl}?challengeScore=${currentCoins}`;
+    const text = encodeURIComponent(`🕷️ I earned ${currentCoins} Gothic Coins in Wednesday's Diner! Can you beat my high score in Grade 4 Math? Play here: ${challengeUrl}`);
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  }
+
+  draw();
+</script>
+
+</body>
+  </html>
+  
