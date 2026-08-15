@@ -10,7 +10,7 @@
     h1 { color: #b19ffb; font-size: 22px; margin-bottom: 4px; }
     p { color: #a0a0b0; font-size: 15px; }
     .challenge-banner { background: #3b2d54; color: #d4bfff; padding: 8px; border-radius: 8px; font-weight: bold; margin-bottom: 10px; display: none; }
-    canvas { background: #181820; cursor: pointer; touch-action: none; margin: 10px 0; border-radius: 50%; border: 3px solid #4a3b69; }
+    #pizza { background: #181820; cursor: pointer; touch-action: none; margin: 10px 0; border-radius: 50%; border: 3px solid #4a3b69; }
     .btn { background: #6b5b95; color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 25px; cursor: pointer; transition: transform 0.1s; }
     .btn:active { transform: scale(0.95); }
     .btn-wa { background: #25D366; margin-top: 12px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
@@ -40,7 +40,6 @@
 </div>
 
 <script>
-  // WhatsApp Challenge Handler
   const urlParams = new URLSearchParams(window.location.search);
   const challengeScore = urlParams.get('challengeScore');
   let currentCoins = parseInt(localStorage.getItem('diner_coins') || '0');
@@ -52,7 +51,6 @@
     banner.innerText = `⚡ WhatsApp Challenge: Beat high score of ${challengeScore} pts!`;
   }
 
-  // Audio Synthesizer
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   function playPopSound() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -81,7 +79,6 @@
     });
   }
 
-  // Confetti Particle Engine
   const cCanvas = document.getElementById('confetti-canvas');
   const cCtx = cCanvas.getContext('2d');
   let particles = [];
@@ -113,7 +110,6 @@
     if (particles.length > 0) requestAnimationFrame(updateConfetti);
   }
 
-  // Canvas Pizza Engine
   const totalSlices = 8, targetSlices = 6;
   let selected = new Array(totalSlices).fill(false);
   let sliceOffsets = new Array(totalSlices).fill(0);
@@ -199,5 +195,4 @@
 </script>
 
 </body>
-  </html>
-  
+</html>
