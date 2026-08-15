@@ -3,386 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Wednesday's Gothic Math Diner 3D - PS5 Edition</title>
+  <title>Wednesday's Gothic Math Diner</title>
   <style>
-    :root {
-      --ps-neon-purple: #9d4edd;
-      --ps-neon-blue: #00f0ff;
-      --ps-gold: #ffd700;
-      --ps-dark-bg: rgba(12, 10, 24, 0.94);
-      --ps-border: #5a3e85;
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { background: #05040a; color: #fff; font-family: system-ui, sans-serif; height: 100vh; width: 100vw; overflow: hidden; }
+    
+    /* Force interactive layer z-index */
+    #start-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #0d081a; z-index: 999999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 20px;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
-    body { background: #05040a; color: #f0f0f0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; overflow: hidden; height: 100vh; width: 100vw; }
-    #webgl-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+    .start-btn {
+      background: #9d4edd; color: #fff; border: 3px solid #00f0ff;
+      padding: 20px 40px; font-size: 20px; font-weight: bold; border-radius: 50px;
+      margin-top: 20px; cursor: pointer; box-shadow: 0 0 20px #00f0ff;
+    }
 
-    /* PS5 Tap to Start Screen */
-    #start-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle, #1a0f30 0%, #05040a 90%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; cursor: pointer; }
-    .ps5-title { font-size: clamp(26px, 6vw, 44px); color: var(--ps-neon-purple); text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 20px var(--ps-neon-purple); margin-bottom: 10px; font-weight: 900; }
-    .ps5-subtitle { color: var(--ps-neon-blue); font-size: 15px; margin-bottom: 30px; letter-spacing: 1px; }
-    .btn-press-start { background: linear-gradient(135deg, #7b2cbf, #3c096c); color: #fff; border: 2px solid var(--ps-neon-blue); padding: 18px 38px; font-size: 18px; font-weight: bold; border-radius: 40px; pointer-events: none; box-shadow: 0 0 25px rgba(0, 240, 255, 0.4); animation: pulseStart 1.8s infinite; }
-    @keyframes pulseStart { 0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(157, 78, 221, 0.6); } 50% { transform: scale(1.05); box-shadow: 0 0 35px rgba(0, 240, 255, 0.9); } }
-
-    /* PS5 RPG HUD Overlay */
-    #hud-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 12px; }
-    .interactive { pointer-events: auto; }
-
-    .rpg-header { display: flex; justify-content: space-between; align-items: center; background: var(--ps-dark-bg); backdrop-filter: blur(12px); padding: 10px 12px; border-radius: 18px; border: 1px solid var(--ps-border); box-shadow: 0 8px 32px rgba(0,0,0,0.8); gap: 6px; overflow-x: auto; }
-    .rpg-badge { background: rgba(30, 20, 50, 0.8); border: 1px solid var(--ps-neon-purple); padding: 6px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
-    .rpg-badge.gold { border-color: var(--ps-gold); color: var(--ps-gold); }
-
-    .btn-ps5 { background: linear-gradient(135deg, #2a1b4e, #140c28); color: #fff; border: 1px solid var(--ps-neon-purple); padding: 8px 12px; font-size: 11px; font-weight: bold; border-radius: 12px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
-    .btn-ps5:active { transform: scale(0.95); background: var(--ps-neon-purple); }
-    .btn-ps5.special { border-color: #ff2a85; background: linear-gradient(135deg, #831843, #500724); color: #ffb3d9; }
-    .btn-ps5.action { background: linear-gradient(135deg, #0284c7, #0369a1); border-color: var(--ps-neon-blue); font-size: 14px; padding: 10px 20px; }
-
-    .ps-symbol { display: inline-block; width: 16px; height: 16px; line-height: 16px; text-align: center; border-radius: 50%; background: rgba(255,255,255,0.15); font-size: 10px; font-weight: 900; }
-
-    .quest-card { background: var(--ps-dark-bg); border: 2px solid var(--ps-neon-purple); border-radius: 20px; padding: 12px; margin: 0 auto 8px auto; max-width: 550px; width: 100%; text-align: center; box-shadow: 0 0 20px rgba(157, 78, 221, 0.3); backdrop-filter: blur(12px); }
-    .speaker-tag { color: var(--ps-neon-blue); font-size: 11px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .question-text { color: #ffffff; font-size: clamp(14px, 2.5vw, 18px); font-weight: 700; min-height: 44px; display: flex; align-items: center; justify-content: center; line-height: 1.3; }
-
-    .rpg-controls { background: var(--ps-dark-bg); border: 1px solid var(--ps-border); border-radius: 20px; padding: 12px; max-width: 550px; width: 100%; margin: 0 auto; text-align: center; backdrop-filter: blur(12px); }
-    .input-row { display: flex; gap: 8px; justify-content: center; margin-top: 8px; }
-    .ps-input { background: #0c0818; border: 2px solid var(--ps-neon-purple); color: #fff; font-size: 18px; font-weight: bold; text-align: center; width: 110px; padding: 8px; border-radius: 12px; outline: none; }
-
-    .term-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 8px; }
-    .term-btn { background: #160f29; border: 1px solid #3d2860; color: #a090c0; padding: 8px 2px; font-size: 10px; font-weight: bold; border-radius: 10px; cursor: pointer; text-align: center; }
-    .term-btn.active { background: var(--ps-neon-purple); color: #fff; border-color: var(--ps-neon-blue); box-shadow: 0 0 12px rgba(157, 78, 221, 0.6); }
-
-    .level-grid { display: flex; gap: 6px; justify-content: center; align-items: center; overflow-x: auto; padding: 4px 0; }
-    .level-node { width: 34px; height: 34px; border-radius: 50%; background: #1a1230; border: 1px solid var(--ps-border); color: #a090c0; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-    .level-node.active { background: var(--ps-neon-blue); color: #000; border-color: #fff; box-shadow: 0 0 10px var(--ps-neon-blue); }
-
-    #thing-popup { position: absolute; bottom: 120px; right: 20px; z-index: 80; display: none; text-align: center; animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    .thing-hand { font-size: 60px; filter: drop-shadow(0 0 15px var(--ps-neon-purple)); }
-    .thing-text { background: var(--ps-neon-purple); color: white; padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 900; letter-spacing: 1px; }
-    @keyframes popUp { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 3, 10, 0.88); backdrop-filter: blur(14px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 16px; }
-    .modal-card { background: #120b24; border: 2px solid var(--ps-neon-purple); border-radius: 24px; padding: 20px; max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 0 40px rgba(157, 78, 221, 0.4); }
-    .modal-title { color: var(--ps-neon-blue); font-size: 18px; font-weight: 900; margin-bottom: 12px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
-
-    .lesson-card { background: #1b1233; border-left: 4px solid var(--ps-neon-purple); padding: 10px; border-radius: 12px; margin-bottom: 10px; text-align: left; }
-    .lesson-card h4 { color: var(--ps-gold); font-size: 13px; margin-bottom: 4px; }
-    .lesson-card p { color: #d0c8e8; font-size: 12px; line-height: 1.4; }
-
-    .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
-    .shop-item { background: #1a1130; border: 1px solid var(--ps-border); padding: 10px; border-radius: 16px; text-align: center; }
+    #game-ui { display: none; padding: 20px; text-align: center; }
+    .card { background: #160f29; border: 2px solid #9d4edd; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+    .action-btn { background: #00f0ff; color: #000; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; }
+    input { background: #000; border: 2px solid #9d4edd; color: #fff; padding: 12px; font-size: 18px; border-radius: 12px; width: 120px; text-align: center; }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-<div id="webgl-container"></div>
-
-<!-- Tap Anywhere Start Screen Overlay -->
-<div id="start-overlay" class="interactive">
-  <div class="ps5-title">🕷️ Addams Math 3D</div>
-  <div class="ps5-subtitle">PS5 Edition • Wednesday's Gothic Diner</div>
-  <div class="btn-press-start">PRESS ANYWHERE TO PLAY</div>
+<div id="start-screen">
+  <h1 style="color: #9d4edd; margin-bottom: 10px;">🕷️ ADDAMS MATH 3D</h1>
+  <p style="color: #00f0ff;">Wednesday's Gothic Diner</p>
+  <button id="main-start-btn" class="start-btn">TAP TO PLAY</button>
 </div>
 
-<!-- Thing Thumbs Up Popup -->
-<div id="thing-popup" class="interactive">
-  <div class="thing-hand">🖐️👍</div>
-  <div class="thing-text">THING APPROVED</div>
-</div>
-
-<!-- Main Game HUD Layer -->
-<div id="hud-layer">
-  <div class="rpg-header interactive">
-    <div class="rpg-badge"><span class="ps-symbol">⚡</span> TERM <span id="hud-term">1</span></div>
-    <div class="rpg-badge"><span class="ps-symbol">🏆</span> LVL <span id="hud-lvl">1</span></div>
-    <div class="rpg-badge gold">🪙 <span id="coin-count">0</span></div>
-    <button class="btn-ps5 special" onclick="openClassroom()"><span class="ps-symbol">Δ</span> Classroom</button>
-    <button class="btn-ps5" onclick="openFamilyHub()"><span class="ps-symbol">◯</span> Hub</button>
-    <button class="btn-ps5" onclick="toggleShop(true)"><span class="ps-symbol">□</span> Shop</button>
+<div id="game-ui">
+  <div class="card">
+    <h2 id="speaker" style="color: #00f0ff; font-size: 14px; margin-bottom: 10px;">WEDNESDAY ADDAMS</h2>
+    <p id="question" style="font-size: 20px; font-weight: bold;">Loading...</p>
   </div>
 
-  <div class="quest-card interactive">
-    <div class="speaker-tag">
-      <span class="ps-symbol">💬</span> <span id="char-name">WEDNESDAY ADDAMS</span>
-    </div>
-    <div class="question-text" id="question-text">Loading Quest...</div>
-  </div>
-
-  <div class="rpg-controls interactive">
-    <div class="term-tabs">
-      <button class="term-btn active" id="term-tab-1" onclick="selectTerm(1)">Term 1: Vault</button>
-      <button class="term-btn" id="term-tab-2" onclick="selectTerm(2)">Term 2: Buffet</button>
-      <button class="term-btn" id="term-tab-3" onclick="selectTerm(3)">Term 3: Pizza</button>
-      <button class="term-btn" id="term-tab-4" onclick="selectTerm(4)">Term 4: Geometry</button>
-    </div>
-
-    <div class="level-grid" id="level-node-container"></div>
-
-    <div class="input-row">
-      <input type="number" id="answer-input" class="ps-input" placeholder="Answer" />
-      <button class="btn-ps5 action" onclick="submitAnswer()"><span class="ps-symbol">✖</span> SUBMIT</button>
-    </div>
-  </div>
-</div>
-
-<!-- Classroom Modal -->
-<div id="classroom-modal" class="modal-overlay interactive">
-  <div class="modal-card">
-    <div class="modal-title">🏫 Wednesday's Classroom</div>
-    <div style="text-align:center; color:var(--ps-gold); font-size:12px; font-weight:bold; margin-bottom:10px;">Grade 4 Term 3: Fractions & Decimals</div>
-
-    <div class="lesson-card">
-      <h4>🍕 1. Pizza Numerators & Denominators</h4>
-      <p>The <strong>bottom number (Denominator)</strong> is total slices in a whole pie. The <strong>top number (Numerator)</strong> is how many slices Wednesday eats!<br><em>3 slices out of 8 = 3/8!</em></p>
-    </div>
-
-    <div class="lesson-card">
-      <h4>✨ 2. Twin Equivalent Fractions</h4>
-      <p>2/4 and 4/8 and 1/2 are equal! If you cut a slice in half, the amount of pizza doesn't change.</p>
-    </div>
-
-    <div class="lesson-card">
-      <h4>🧪 3. Decimals (Tenths & Hundredths)</h4>
-      <p>0.1 is 1 slice out of 10. 0.5 is half the entire pizza pie!</p>
-    </div>
-
-    <button class="btn-ps5 action" style="width: 100%; margin-top: 8px;" onclick="closeClassroom()"><span class="ps-symbol">✖</span> RETURN TO GAME</button>
-  </div>
-</div>
-
-<!-- Family Hub Modal -->
-<div id="family-modal" class="modal-overlay interactive">
-  <div class="modal-card">
-    <div class="modal-title">🧛 Family Teaching Hub</div>
-
-    <div class="lesson-card">
-      <h4 style="color:var(--ps-neon-purple);">🕷️ Wednesday (Term 1: Place Value)</h4>
-      <p>"When rounding to the nearest 10, look at the units: 5 or higher rounds UP, 4 or lower rounds DOWN."</p>
-    </div>
-
-    <div class="lesson-card">
-      <h4 style="color:#ff2a85;">🥀 Morticia (Term 2: Multiplication)</h4>
-      <p>"Multiplication is repeated addition. 7 × 6 means adding 6 seven times over, my darling."</p>
-    </div>
-
-    <div class="lesson-card">
-      <h4 style="color:var(--ps-gold);">🎩 Gomez (Term 4: Geometry)</h4>
-      <p>"Perimeter is walking around the outer edge (2L + 2W). Area is tiling the inside floor (Length × Width)!"</p>
-    </div>
-
-    <button class="btn-ps5 action" style="width: 100%; margin-top: 8px;" onclick="closeFamilyHub()"><span class="ps-symbol">✖</span> CLOSE HUB</button>
-  </div>
-</div>
-
-<!-- Bonus Puzzle Modal -->
-<div id="puzzle-modal" class="modal-overlay interactive">
-  <div class="modal-card" style="text-align:center;">
-    <div class="modal-title">🧩 Bonus Mystery Puzzle</div>
-    <p id="puzzle-question" style="color:#d0c8e8; margin-bottom:12px;">Solve to double your level reward!</p>
-    <input type="number" id="puzzle-input" class="ps-input" placeholder="Answer" style="margin: 0 auto 12px auto; display:block;" />
-    <button class="btn-ps5 action" style="width: 100%;" onclick="submitPuzzle()"><span class="ps-symbol">✖</span> CLAIM DOUBLE COINS</button>
-  </div>
-</div>
-
-<!-- Decor Shop Modal -->
-<div id="shop-modal" class="modal-overlay interactive">
-  <div class="modal-card">
-    <div class="modal-title" style="color:var(--ps-gold);">🛍️ 3D Gothic Decor Shop</div>
-    <div class="shop-grid">
-      <div class="shop-item">
-        <h4 style="color:#d4bfff; font-size:12px;">Chandelier</h4>
-        <p style="color:var(--ps-gold); font-size:11px; margin: 4px 0;">100 Coins</p>
-        <button class="btn-ps5" onclick="buyDecor('chandelier', 100)">Buy 3D</button>
-      </div>
-      <div class="shop-item">
-        <h4 style="color:#d4bfff; font-size:12px;">Gargoyle</h4>
-        <p style="color:var(--ps-gold); font-size:11px; margin: 4px 0;">150 Coins</p>
-        <button class="btn-ps5" onclick="buyDecor('gargoyle', 150)">Buy 3D</button>
-      </div>
-      <div class="shop-item">
-        <h4 style="color:#d4bfff; font-size:12px;">Diner Booth</h4>
-        <p style="color:var(--ps-gold); font-size:11px; margin: 4px 0;">200 Coins</p>
-        <button class="btn-ps5" onclick="buyDecor('booth', 200)">Buy 3D</button>
-      </div>
-      <div class="shop-item">
-        <h4 style="color:#d4bfff; font-size:12px;">Cauldron</h4>
-        <p style="color:var(--ps-gold); font-size:11px; margin: 4px 0;">250 Coins</p>
-        <button class="btn-ps5" onclick="buyDecor('cauldron', 250)">Buy 3D</button>
-      </div>
-    </div>
-    <button class="btn-ps5 action" style="width: 100%;" onclick="toggleShop(false)"><span class="ps-symbol">✖</span> RESUME GAME</button>
+  <div style="display: flex; gap: 10px; justify-content: center;">
+    <input type="number" id="ans" placeholder="?" />
+    <button id="submit-btn" class="action-btn">SUBMIT</button>
   </div>
 </div>
 
 <script>
-  let currentTerm = 1;
-  let currentLevel = 1;
-  let currentAnswer = 0;
-  let currentPuzzleAnswer = 0;
-  let GothicCoins = parseInt(localStorage.getItem('diner_coins_3d') || '0');
-  let activeSpeaker = "Wednesday Addams";
-  let themeMusicInterval = null;
-  let audioCtx = null;
-  let gameStarted = false;
+  let targetAns = 0;
 
-  document.getElementById('coin-count').innerText = GothicCoins;
-
-  // Touch and Mouse Event Listeners for Overlay
-  const startOverlay = document.getElementById('start-overlay');
-  
-  function handleStart(e) {
-    if (gameStarted) return;
-    if (e) e.preventDefault();
-    gameStarted = true;
-    initPS5Game();
+  function handleStart() {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('game-ui').style.display = 'block';
+    loadProblem();
   }
 
-  startOverlay.addEventListener('click', handleStart);
-  startOverlay.addEventListener('touchstart', handleStart, { passive: false });
+  function loadProblem() {
+    let a = Math.floor(Math.random() * 50) + 10;
+    let b = Math.floor(Math.random() * 50) + 10;
+    targetAns = a + b;
+    document.getElementById('question').innerText = `What is ${a} + ${b}?`;
+  }
 
-  function initPS5Game() {
-    startOverlay.style.display = 'none';
-
-    try {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (AudioContextClass) {
-        audioCtx = new AudioContextClass();
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
-        playAddamsThemeLoop();
-      }
-    } catch(e) {
-      console.log("Audio Context Error Handling:", e);
+  function checkAnswer() {
+    let inputVal = parseInt(document.getElementById('ans').value);
+    if (inputVal === targetAns) {
+      alert("✨ Correct! Well done.");
+      document.getElementById('ans').value = "";
+      loadProblem();
+    } else {
+      alert("🕸️ Incorrect, try again!");
     }
-
-    renderLevelGrid();
-    generateMathProblem();
   }
 
-  function playAddamsThemeLoop() {
-    if (themeMusicInterval) clearInterval(themeMusicInterval);
-    
-    function playRiff() {
-      if (!audioCtx || audioCtx.state !== 'running') return;
-      const melody = [
-        { f: 392.00, d: 0.18, t: 0.0 },
-        { f: 440.00, d: 0.18, t: 0.22 },
-        { f: 493.88, d: 0.18, t: 0.44 },
-        { f: 523.25, d: 0.35, t: 0.66 }
-      ];
+  // Dual Event Binding for iOS/Android Touch Reliability
+  const startBtn = document.getElementById('main-start-btn');
+  startBtn.addEventListener('click', handleStart);
+  startBtn.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    handleStart();
+  }, { passive: false });
 
-      melody.forEach(n => {
-        try {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(n.f, audioCtx.currentTime + n.t);
-          gain.gain.setValueAtTime(0.1, audioCtx.currentTime + n.t);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + n.t + n.d);
-          osc.connect(gain); gain.connect(audioCtx.destination);
-          osc.start(audioCtx.currentTime + n.t);
-          osc.stop(audioCtx.currentTime + n.t + n.d);
-        } catch(err){}
-      });
+  const subBtn = document.getElementById('submit-btn');
+  subBtn.addEventListener('click', checkAnswer);
+  subBtn.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    checkAnswer();
+  }, { passive: false });
+</script>
 
-      [1.1, 1.3].forEach(delay => {
-        setTimeout(() => { playSnapFX(); }, delay * 1000);
-      });
-    }
-
-    playRiff();
-    themeMusicInterval = setInterval(playRiff, 3800);
-  }
-
-  function playSnapFX() {
-    if (!audioCtx || audioCtx.state !== 'running') return;
-    try {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(850, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.04);
-      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(); osc.stop(audioCtx.currentTime + 0.04);
-    } catch(e){}
-  }
-
-  function triggerThingThumbsUp() {
-    const popup = document.getElementById('thing-popup');
-    popup.style.display = 'block';
-    playSnapFX();
-    setTimeout(() => { popup.style.display = 'none'; }, 1600);
-  }
-
-  function speakLine(text, character) {
-    if (!('speechSynthesis' in window)) return;
-    try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      if (character.includes("Wednesday")) { utterance.pitch = 0.6; utterance.rate = 0.85; }
-      else if (character.includes("Morticia")) { utterance.pitch = 0.8; utterance.rate = 0.9; }
-      else if (character.includes("Gomez")) { utterance.pitch = 1.3; utterance.rate = 1.1; }
-      window.speechSynthesis.speak(utterance);
-    } catch(e){}
-  }
-
-  function openClassroom() {
-    triggerThingThumbsUp();
-    document.getElementById('classroom-modal').style.display = 'flex';
-    speakLine("Welcome Ryley. Let us master Term 3 fractions and decimals together.", "Wednesday Addams");
-  }
-
-  function closeClassroom() {
-    document.getElementById('classroom-modal').style.display = 'none';
-  }
-
-  function openFamilyHub() {
-    triggerThingThumbsUp();
-    document.getElementById('family-modal').style.display = 'flex';
-    speakLine("Welcome to the Addams Family Hub.", "Morticia Addams");
-  }
-
-  function closeFamilyHub() {
-    document.getElementById('family-modal').style.display = 'none';
-  }
-
-  // Three.js Scene Setup
-  const container = document.getElementById('webgl-container');
-  const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x05040a, 0.04);
-
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 3.2, 6.5);
-  camera.lookAt(0, 1.4, 0);
-
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  container.appendChild(renderer.domElement);
-
-  const ambientLight = new THREE.AmbientLight(0x4a3b6e, 1.5);
-  scene.add(ambientLight);
-
-  const pointLight = new THREE.PointLight(0x00f0ff, 2, 20);
-  pointLight.position.set(0, 4, 2);
-  scene.add(pointLight);
-
-  const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(20, 20),
-    new THREE.MeshStandardMaterial({ color: 0x100b20, roughness: 0.8 })
-  );
-  floor.rotation.x = -Math.PI / 2;
-  scene.add(floor);
-
-  let activePropGroup = new THREE.Group();
-  scene.add(activePropGroup);
-
-  function render3DPropForTerm(term) {
-    activePropGroup.clear();
-
-    if (term === 1) {
-      const cauldron = new THREE.Mesh(
-        new THREE.SphereGeometry(1.2, 32, 16
+</body>
+</html>
