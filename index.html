@@ -3,451 +3,425 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Wednesday's Gothic Math Diner</title>
+  <title>Wednesday's Gothic Math Diner 3D</title>
   <style>
-    :root {
-      --bg: #101018;
-      --card-bg: #1c1c2b;
-      --accent: #9d4edd;
-      --accent-light: #c77dff;
-      --gold: #ffd700;
-      --text: #e0e0e0;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 12px;
-      user-select: none;
-    }
-    .card {
-      background: var(--card-bg);
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 16px;
-      border-radius: 20px;
-      border: 2px solid var(--accent);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-      position: relative;
-      overflow: hidden;
-    }
-    .term-nav {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      padding-bottom: 8px;
-      margin-bottom: 12px;
-    }
-    .term-btn {
-      background: #2a2a3d;
-      color: #aaa;
-      border: 1px solid #444;
-      padding: 8px 12px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: bold;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-    .term-btn.active {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent-light);
-    }
-    .char-box {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: #252538;
-      padding: 10px;
-      border-radius: 14px;
-      border: 1px solid #3d3d5c;
-      margin-bottom: 12px;
-      text-align: left;
-    }
-    .char-avatar {
-      font-size: 38px;
-      background: #101018;
-      width: 55px;
-      height: 55px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      border: 2px solid var(--accent-light);
-      flex-shrink: 0;
-    }
-    .char-speech {
-      font-size: 13px;
-      color: #d1d1e0;
-      line-height: 1.3;
-    }
-    .char-name {
-      font-weight: bold;
-      color: var(--accent-light);
-      font-size: 14px;
-      display: block;
-    }
-    .interactive-zone {
-      background: #141420;
-      border-radius: 14px;
-      padding: 16px;
-      min-height: 220px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid #333;
-      margin-bottom: 12px;
-      position: relative;
-    }
-    .problem-title {
-      font-size: 20px;
-      font-weight: bold;
-      color: #fff;
-      margin-bottom: 12px;
-    }
-    .options-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      width: 100%;
-    }
-    .opt-btn {
-      background: #2c2c44;
-      color: #fff;
-      border: 1px solid var(--accent);
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .opt-btn:active { transform: scale(0.96); }
-    canvas {
-      touch-action: none;
-      border-radius: 10px;
-    }
-    .stats-bar {
-      display: flex;
-      justify-content: space-between;
-      font-weight: bold;
-      color: var(--gold);
-      padding: 6px 4px;
-    }
-    .action-btn {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      font-size: 14px;
-      font-weight: bold;
-      border-radius: 20px;
-      cursor: pointer;
-      margin: 4px;
-    }
-    .wa-btn { background: #25D366; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
-    .shop-modal {
-      display: none;
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(16, 16, 24, 0.95);
-      z-index: 10;
-      padding: 16px;
-      box-sizing: border-box;
-      overflow-y: auto;
-    }
-    .shop-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #252538;
-      padding: 10px;
-      border-radius: 10px;
-      margin-bottom: 8px;
-    }
-    #confetti-canvas {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 5;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body { background: #0a0a0f; color: #e0e0e0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; height: 100vh; width: 100vw; }
+    #webgl-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+    
+    /* UI Overlay HUD */
+    #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 12px; }
+    .interactive { pointer-events: auto; }
+    
+    .header-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(20, 15, 30, 0.9); backdrop-filter: blur(8px); padding: 8px 16px; border-radius: 12px; border: 2px solid #5a4b7c; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+    .title-text { color: #b19ffb; font-size: 18px; font-weight: bold; text-shadow: 0 0 10px #7b52ab; }
+    .badge-group { display: flex; gap: 10px; align-items: center; }
+    .coin-badge { background: #2a203a; color: #ffd700; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; border: 1px solid #ffd700; }
+    
+    .dialogue-box { background: rgba(15, 10, 25, 0.92); border: 2px solid #8e62d4; border-radius: 16px; padding: 12px 18px; margin: 0 auto 8px auto; max-width: 520px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.8); }
+    .character-name { color: #d4bfff; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .question-text { color: #ffffff; font-size: 17px; font-weight: 600; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+    
+    .controls-panel { background: rgba(20, 15, 30, 0.9); backdrop-filter: blur(8px); padding: 12px; border-radius: 16px; border: 2px solid #5a4b7c; max-width: 520px; margin: 0 auto; text-align: center; }
+    .input-grid { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; }
+    .num-input { background: #151020; border: 2px solid #8e62d4; color: #fff; font-size: 20px; text-align: center; width: 110px; padding: 6px; border-radius: 8px; outline: none; }
+    
+    .btn { background: linear-gradient(135deg, #6b5b95, #4a3b69); color: white; border: none; padding: 8px 16px; font-size: 14px; font-weight: bold; border-radius: 20px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4); }
+    .btn-action { background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size: 15px; }
+    .btn-special { background: linear-gradient(135deg, #ec4899, #be185d); color: white; }
+    .btn-wa { background: #25D366; color: #000; font-weight: 800; }
+    
+    .nav-tabs { display: flex; gap: 6px; justify-content: center; margin-top: 6px; flex-wrap: wrap; }
+    .tab-btn { background: #251b35; color: #a090c0; border: 1px solid #4a3b69; padding: 5px 10px; font-size: 11px; border-radius: 12px; cursor: pointer; }
+    .tab-btn.active { background: #8b5cf6; color: #fff; font-weight: bold; border-color: #b19ffb; }
+
+    /* Thing Thumbs-Up Pop-up Overlay */
+    #thing-popup { position: absolute; bottom: 80px; right: 20px; z-index: 50; display: none; text-align: center; animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .thing-hand { font-size: 60px; filter: drop-shadow(0 0 10px #8b5cf6); }
+    .thing-text { background: #8b5cf6; color: white; padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+    @keyframes popUp { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+    /* Modal Screens */
+    .modal-overlay { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 5, 10, 0.85); backdrop-filter: blur(10px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-card { background: #181224; border: 2px solid #8e62d4; border-radius: 20px; padding: 20px; max-width: 500px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.9); }
+    .modal-card h2 { color: #b19ffb; font-size: 20px; margin-bottom: 12px; text-align: center; }
+    .modal-card p { color: #d4bfff; font-size: 14px; line-height: 1.5; margin-bottom: 12px; }
+
+    .lesson-box { background: #231935; border-left: 4px solid #ec4899; padding: 12px; border-radius: 8px; margin-bottom: 12px; text-align: left; }
+    .lesson-box h3 { color: #ffd700; font-size: 15px; margin-bottom: 4px; }
+
+    .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+    .shop-item { background: #201830; border: 1px solid #5a4b7c; padding: 10px; border-radius: 12px; text-align: center; }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
-<body>
+<body onclick="initAudioOnInteraction()">
 
-<div class="card">
-  <canvas id="confetti-canvas"></canvas>
+<div id="webgl-container"></div>
 
-  <div class="term-nav">
-    <button class="term-btn active" onclick="loadTerm(1)">Term 1: Cauldron</button>
-    <button class="term-btn" onclick="loadTerm(2)">Term 2: Buffet</button>
-    <button class="term-btn" onclick="loadTerm(3)">Term 3: Pizza Shop</button>
-    <button class="term-btn" onclick="loadTerm(4)">Term 4: Expansion</button>
-  </div>
+<!-- Thing Thumbs Up Widget -->
+<div id="thing-popup" class="interactive">
+  <div class="thing-hand">🖐️👍</div>
+  <div class="thing-text">Thing Approved!</div>
+</div>
 
-  <div class="char-box">
-    <div class="char-avatar" id="char-avatar">🕷️</div>
-    <div class="char-speech">
-      <span class="char-name" id="char-name">Wednesday Addams</span>
-      <span id="char-text">Welcome to Nevermore's math diner. Pay attention, or face Mortis.</span>
+<div id="ui-layer">
+  <!-- Top Header -->
+  <div class="header-bar interactive">
+    <div class="title-text">🕷️ Addams Math 3D</div>
+    <div class="badge-group">
+      <div class="coin-badge">🏆 Level <span id="level-num">1</span></div>
+      <div class="coin-badge">🪙 <span id="coin-count">0</span></div>
+      <button class="btn btn-special" onclick="openClassroom()">🏫 Wednesday Classroom</button>
+      <button class="btn" onclick="openFamilyHub()">🧛 Family Hub</button>
+      <button class="btn" onclick="toggleShop(true)">🛍️ Shop</button>
     </div>
   </div>
 
-  <div class="interactive-zone" id="game-zone">
-    <!-- Dynamic Content Loaded Here -->
+  <!-- Dialogue Box -->
+  <div class="dialogue-box interactive">
+    <div class="character-name" id="char-name">Wednesday Addams</div>
+    <div class="question-text" id="question-text">Tap anywhere to start audio theme!</div>
   </div>
 
-  <div class="stats-bar">
-    <span>🪙 Gothic Coins: <span id="coin-count">0</span></span>
-    <span>🏆 Score: <span id="score-count">0</span></span>
-  </div>
+  <!-- Controls Panel -->
+  <div class="controls-panel interactive">
+    <div class="input-grid">
+      <input type="number" id="answer-input" class="num-input" placeholder="Answer" />
+      <button class="btn btn-action" onclick="submitAnswer()">Submit 🦇</button>
+    </div>
+    <button class="btn btn-wa" onclick="shareToWhatsApp()">📲 Challenge Friend on WhatsApp</button>
 
-  <div>
-    <button class="action-btn" onclick="openShop()">🏚️ Decor Shop</button>
-    <button class="action-btn wa-btn" onclick="shareWhatsApp()">📲 WhatsApp Challenge</button>
+    <!-- Term Selectors -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="loadTerm(1, this)">Term 1: Vault</button>
+      <button class="tab-btn" onclick="loadTerm(2, this)">Term 2: Buffet</button>
+      <button class="tab-btn" onclick="loadTerm(3, this)">Term 3: Pizza & Pie</button>
+      <button class="tab-btn" onclick="loadTerm(4, this)">Term 4: Geometry</button>
+    </div>
   </div>
+</div>
 
-  <!-- Shop Overlay -->
-  <div class="shop-modal" id="shop-modal">
-    <h2 style="color: var(--accent-light);">🕷️ Gothic Decor Shop</h2>
-    <p style="font-size: 12px; color: #aaa;">Unlock items with your Gothic Coins!</p>
-    <div id="shop-items-container"></div>
-    <br>
-    <button class="action-btn" onclick="closeShop()">Close Shop</button>
+<!-- Wednesday's Fun Classroom Modal -->
+<div id="classroom-modal" class="modal-overlay interactive">
+  <div class="modal-card">
+    <h2>🕸️ Wednesday's Fun Classroom</h2>
+    <p style="text-align:center; color:#ffd700; font-weight:bold;">Special Lesson: Term 3 Fractions & Decimals Made Easy!</p>
+    
+    <div class="lesson-box">
+      <h3>🍕 1. Slicing the Pizza (Fractions)</h3>
+      <p><strong>Numerator (Top Number):</strong> How many pizza slices you eat.<br>
+      <strong>Denominator (Bottom Number):</strong> Total slices in the whole pizza.<br>
+      <em>Example: Eat 3 slices out of 8 = <strong>3/8</strong>!</em></p>
+    </div>
+
+    <div class="lesson-box">
+      <h3>✨ 2. Magic Equivalent Fractions</h3>
+      <p>Fractions are twins in disguise! <strong>2/4 = 4/8 = 1/2</strong>.<br>
+      If you double both top and bottom numbers, the amount of pizza stays the same!</p>
+    </div>
+
+    <div class="lesson-box">
+      <h3>🧪 3. Decimals (Spooky Tenths)</h3>
+      <p>0.1 is just 1 slice out of 10! 0.5 is half the pizza. Easy as that!</p>
+    </div>
+
+    <button class="btn btn-action" style="width: 100%; margin-top: 10px;" onclick="closeClassroom()">Return to Game 🦇</button>
+  </div>
+</div>
+
+<!-- Family Teaching Hub Modal -->
+<div id="family-modal" class="modal-overlay interactive">
+  <div class="modal-card">
+    <h2>🧛 Addams Family Grade 4 Teaching Hub</h2>
+    
+    <div class="lesson-box">
+      <h3 style="color:#b19ffb;">🕷️ Wednesday (Term 1: Place Value)</h3>
+      <p>"Rounding is simple. If the last digit is 5 or higher, jump UP to the next 10. If it's 4 or lower, stay DOWN!"</p>
+    </div>
+
+    <div class="lesson-box">
+      <h3 style="color:#ec4899;">🥀 Morticia (Term 2: Multiplication)</h3>
+      <p>"Multiplication is just super-fast addition, my dear! 6 × 8 means adding 8 six times."</p>
+    </div>
+
+    <div class="lesson-box">
+      <h3 style="color:#ffd700;">🎩 Gomez (Term 4: Geometry)</h3>
+      <p>"Perimeter is walking around the OUTSIDE fence (2L + 2W). Area is tiling the INSIDE floor (Length × Width)!"</p>
+    </div>
+
+    <button class="btn btn-action" style="width: 100%; margin-top: 10px;" onclick="closeFamilyHub()">Back to Diner 🦇</button>
+  </div>
+</div>
+
+<!-- Post-Level Bonus Puzzle Modal -->
+<div id="puzzle-modal" class="modal-overlay interactive">
+  <div class="modal-card" style="text-align:center;">
+    <h2>🧩 Bonus Spooky Puzzle!</h2>
+    <p id="puzzle-question">Solve to double your level coins!</p>
+    <input type="number" id="puzzle-input" class="num-input" placeholder="Answer" style="margin: 10px auto; display:block;" />
+    <button class="btn btn-action" style="width: 100%;" onclick="submitPuzzle()">Claim Reward 🪙</button>
+  </div>
+</div>
+
+<!-- 3D Decor Shop Modal -->
+<div id="shop-modal" class="modal-overlay interactive">
+  <div class="modal-card">
+    <h2 style="color: #ffd700;">🦇 3D Gothic Decor Shop</h2>
+    <p style="text-align:center;">Unlock 3D items to decorate your diner room!</p>
+    <div class="shop-grid">
+      <div class="shop-item">
+        <h4 style="color:#d4bfff;">Cobweb Chandelier</h4>
+        <p style="color:#ffd700;">100 Coins</p>
+        <button class="btn" onclick="buyDecor('chandelier', 100)">Unlock 3D</button>
+      </div>
+      <div class="shop-item">
+        <h4 style="color:#d4bfff;">Stone Gargoyle</h4>
+        <p style="color:#ffd700;">150 Coins</p>
+        <button class="btn" onclick="buyDecor('gargoyle', 150)">Unlock 3D</button>
+      </div>
+      <div class="shop-item">
+        <h4 style="color:#d4bfff;">Velvet Diner Booth</h4>
+        <p style="color:#ffd700;">200 Coins</p>
+        <button class="btn" onclick="buyDecor('booth', 200)">Unlock 3D</button>
+      </div>
+      <div class="shop-item">
+        <h4 style="color:#d4bfff;">Spooky Cauldron</h4>
+        <p style="color:#ffd700;">250 Coins</p>
+        <button class="btn" onclick="buyDecor('cauldron_decor', 250)">Unlock 3D</button>
+      </div>
+    </div>
+    <button class="btn" style="width: 100%; margin-top: 10px;" onclick="toggleShop(false)">Continue Playing 🦇</button>
   </div>
 </div>
 
 <script>
   // Game State
   let currentTerm = 1;
-  let coins = parseInt(localStorage.getItem('gothic_coins') || '0');
-  let score = 0;
-  let currentAnswer = null;
-  let unlockedDecor = JSON.parse(localStorage.getItem('gothic_decor') || '[]');
+  let currentLevel = 1;
+  let currentAnswer = 0;
+  let currentPuzzleAnswer = 0;
+  let GothicCoins = parseInt(localStorage.getItem('diner_coins_3d') || '0');
+  let activeSpeaker = "Wednesday Addams";
+  let audioInitialized = false;
 
-  document.getElementById('coin-count').innerText = coins;
+  document.getElementById('coin-count').innerText = GothicCoins;
 
-  // Characters Configuration
-  const characters = {
-    wednesday: { name: "Wednesday Addams", avatar: "🕷️", pitch: 0.6, rate: 0.9 },
-    mortis: { name: "Chef Mortis", avatar: "👨‍🍳", pitch: 0.4, rate: 0.85 },
-    thing: { name: "Thing & Enid", avatar: "🖐️", pitch: 1.4, rate: 1.1 },
-    gomez: { name: "Gomez Addams", avatar: "🤺", pitch: 0.9, rate: 1.0 }
-  };
+  // Web Audio Context for Sound Effects & Theme Song Synthesis
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-  // Voice Engine (Speech Synthesis)
-  function speakText(text, charKey) {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const char = characters[charKey] || characters.wednesday;
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.pitch = char.pitch;
-      utterance.rate = char.rate;
-      window.speechSynthesis.speak(utterance);
+  function initAudioOnInteraction() {
+    if (!audioInitialized) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      playAddamsThemeRiff();
+      audioInitialized = true;
     }
   }
 
-  // Audio FX Synthesizer
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  function playSound(type) {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+  // Synthesized Addams Family Theme Song Riff (Harpsichord synth + double snaps)
+  function playAddamsThemeRiff() {
+    const notes = [
+      { f: 392.00, d: 0.2, t: 0.0 }, // G4
+      { f: 440.00, d: 0.2, t: 0.25 }, // A4
+      { f: 493.88, d: 0.2, t: 0.5 }, // B4
+      { f: 523.25, d: 0.4, t: 0.75 }  // C5
+    ];
+
+    notes.forEach(n => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(n.f, audioCtx.currentTime + n.t);
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime + n.t);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + n.t + n.d);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(audioCtx.currentTime + n.t);
+      osc.stop(audioCtx.currentTime + n.t + n.d);
+    });
+
+    // Double Finger Snap FX
+    [1.25, 1.45].forEach(delay => {
+      setTimeout(() => { playSnapFX(); }, delay * 1000);
+    });
+  }
+
+  function playSnapFX() {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
     osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+  }
 
-    if (type === 'pop') {
-      osc.type = 'sine'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.08);
-      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-      osc.start(); osc.stop(audioCtx.currentTime + 0.08);
-    } else if (type === 'correct') {
-      osc.type = 'triangle'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-      osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
-      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-      osc.start(); osc.stop(audioCtx.currentTime + 0.25);
-    } else if (type === 'wrong') {
-      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-      osc.frequency.setValueAtTime(110, audioCtx.currentTime + 0.15);
-      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-      osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+  // Thing Thumbs Up FX Trigger
+  function triggerThingThumbsUp() {
+    const popup = document.getElementById('thing-popup');
+    popup.style.display = 'block';
+    playSnapFX();
+    setTimeout(() => { popup.style.display = 'none'; }, 1800);
+  }
+
+  // Voice Engine (Web Speech API)
+  function speakLine(text, character) {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const synth = window.speechSynthesis;
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    if (character.includes("Wednesday")) { utterance.pitch = 0.6; utterance.rate = 0.85; }
+    else if (character.includes("Morticia")) { utterance.pitch = 0.8; utterance.rate = 0.9; }
+    else if (character.includes("Gomez")) { utterance.pitch = 1.3; utterance.rate = 1.1; }
+
+    synth.speak(utterance);
+  }
+
+  // Classroom & Hub Navigation
+  function openClassroom() {
+    triggerThingThumbsUp();
+    document.getElementById('classroom-modal').style.display = 'flex';
+    speakLine("Welcome Ryley. Let us master Term 3 fractions and decimals together.", "Wednesday Addams");
+  }
+
+  function closeClassroom() {
+    document.getElementById('classroom-modal').style.display = 'none';
+  }
+
+  function openFamilyHub() {
+    triggerThingThumbsUp();
+    document.getElementById('family-modal').style.display = 'flex';
+    speakLine("Welcome to the Addams Family Teaching Hub, my darling children.", "Morticia Addams");
+  }
+
+  function closeFamilyHub() {
+    document.getElementById('family-modal').style.display = 'none';
+  }
+
+  // Three.js 3D Engine Setup
+  const container = document.getElementById('webgl-container');
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x0a0a0f, 0.04);
+
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 3.5, 7);
+  camera.lookAt(0, 1.5, 0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  container.appendChild(renderer.domElement);
+
+  // Lighting
+  const ambientLight = new THREE.AmbientLight(0x3a2b5c, 1.2);
+  scene.add(ambientLight);
+
+  const pointLight = new THREE.PointLight(0xb19ffb, 2, 20);
+  pointLight.position.set(0, 5, 2);
+  scene.add(pointLight);
+
+  // 3D Room & Prop Meshes
+  const floorGeo = new THREE.PlaneGeometry(20, 20);
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0x151020, roughness: 0.8 });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  scene.add(floor);
+
+  const wallGeo = new THREE.PlaneGeometry(20, 10);
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x1a1228, roughness: 0.9 });
+  const backWall = new THREE.Mesh(wallGeo, wallMat);
+  backWall.position.set(0, 5, -10);
+  scene.add(backWall);
+
+  let activePropGroup = new THREE.Group();
+  scene.add(activePropGroup);
+
+  function render3DPropForTerm(term) {
+    activePropGroup.clear();
+
+    if (term === 1) { // Cauldron
+      const caulGeo = new THREE.SphereGeometry(1.2, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.7);
+      const caulMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.3 });
+      const cauldron = new THREE.Mesh(caulGeo, caulMat);
+      cauldron.position.set(0, 1, 0);
+      activePropGroup.add(cauldron);
+
+    } else if (term === 2) { // Buffet Table
+      const tableGeo = new THREE.BoxGeometry(3, 0.2, 2);
+      const tableMat = new THREE.MeshStandardMaterial({ color: 0x3d2314 });
+      const table = new THREE.Mesh(tableGeo, tableMat);
+      table.position.set(0, 1, 0);
+      activePropGroup.add(table);
+
+    } else if (term === 3) { // 3D Pizza
+      const pizzaGeo = new THREE.CylinderGeometry(1.4, 1.4, 0.15, 32);
+      const pizzaMat = new THREE.MeshStandardMaterial({ color: 0x5a2d0c });
+      const pizza = new THREE.Mesh(pizzaGeo, pizzaMat);
+      pizza.position.set(0, 1.1, 0);
+      activePropGroup.add(pizza);
+
+    } else if (term === 4) { // Geometry Shape
+      const shapeGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+      const shapeMat = new THREE.MeshStandardMaterial({ color: 0xb19ffb, wireframe: true });
+      const shape = new THREE.Mesh(shapeGeo, shapeMat);
+      shape.position.set(0, 1.5, 0);
+      activePropGroup.add(shape);
     }
   }
 
-  // Confetti Particle Engine
-  const cCanvas = document.getElementById('confetti-canvas');
-  const cCtx = cCanvas.getContext('2d');
-  let particles = [];
-  function triggerConfetti() {
-    cCanvas.width = cCanvas.parentElement.clientWidth;
-    cCanvas.height = cCanvas.parentElement.clientHeight;
-    particles = [];
-    const colors = ['#9d4edd', '#c77dff', '#ffd700', '#ffffff'];
-    for (let i = 0; i < 40; i++) {
-      particles.push({
-        x: cCanvas.width / 2, y: cCanvas.height / 2,
-        vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.7) * 12,
-        size: Math.random() * 6 + 4, color: colors[Math.floor(Math.random() * colors.length)]
-      });
+  // Curriculum Math Question Generator
+  function generateMathProblem() {
+    let question = "";
+    document.getElementById('level-num').innerText = currentLevel;
+
+    if (currentTerm === 1) { // Term 1: Place Value & Rounding / Add-Sub
+      activeSpeaker = "Wednesday Addams";
+      if (currentLevel % 2 === 1) {
+        const val = Math.floor(Math.random() * 800) + 120;
+        currentAnswer = Math.round(val / 10) * 10;
+        question = `Level ${currentLevel}: Round ${val} to the nearest 10!`;
+      } else {
+        const a = Math.floor(Math.random() * 4000) + 1000;
+        const b = Math.floor(Math.random() * 3000) + 500;
+        currentAnswer = a + b;
+        question = `Level ${currentLevel}: Cauldron Vault addition: ${a} + ${b} = ?`;
+      }
+
+    } else if (currentTerm === 2) { // Term 2: Multiplication & Division
+      activeSpeaker = "Morticia Addams";
+      const num1 = Math.floor(Math.random() * 10) + 2;
+      const num2 = Math.floor(Math.random() * 11) + 2;
+      currentAnswer = num1 * num2;
+      question = `Level ${currentLevel}: Serve ${num1} monster plates with ${num2} eyes each. Total eyes?`;
+
+    } else if (currentTerm === 3) { // Term 3: Fractions & Decimals
+      activeSpeaker = "Wednesday Addams";
+      if (currentLevel % 2 === 1) {
+        const num = Math.floor(Math.random() * 5) + 1;
+        currentAnswer = num;
+        question = `Level ${currentLevel}: Pizza Slices! If Wednesday eats ${num * 2}/8 slices, how many 1/4 portions is that?`;
+      } else {
+        const decimalVal = (Math.floor(Math.random() * 8) + 1) / 10;
+        currentAnswer = decimalVal * 10;
+        question = `Level ${currentLevel}: Convert decimal ${decimalVal.toFixed(1)} to tenths (How many 1/10 slices)?`;
+      }
+
+    } else if (currentTerm === 4) { // Term 4: Geometry & Area/Perimeter
+      activeSpeaker = "Gomez Addams";
+      const l = Math.floor(Math.random() * 8) + 3;
+      const w = Math.floor(Math.random() * 5) + 2;
+      if (currentLevel % 2 === 1) {
+        currentAnswer = l * w;
+        question = `Level ${currentLevel}: Diner Floor Area (Length ${l} × Width ${w})?`;
+      } else {
+        currentAnswer = 2 * (l + w);
+        question = `Level ${currentLevel}: Perimeter around the diner wall (2L ${l * 2} + 2W ${w * 2})?`;
+      }
     }
-    requestAnimationFrame(updateConfetti);
-  }
-  function updateConfetti() {
-    cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height);
-    particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.4; cCtx.fillStyle = p.color; cCtx.fillRect(p.x, p.y, p.size, p.size); });
-    particles = particles.filter(p => p.y < cCanvas.height);
-    if (particles.length > 0) requestAnimationFrame(updateConfetti);
-  }
 
-  // Term Generator Logic
-  function loadTerm(termNum) {
-    currentTerm = termNum;
-    document.querySelectorAll('.term-btn').forEach((btn, i) => btn.classList.toggle('active', i + 1 === termNum));
-    generateProblem();
-  }
-
-  function setCharacter(charKey, text) {
-    const char = characters[charKey];
-    document.getElementById('char-avatar').innerText = char.avatar;
-    document.getElementById('char-name').innerText = char.name;
-    document.getElementById('char-text').innerText = text;
-    speakText(text, charKey);
-  }
-
-  function generateProblem() {
-    const zone = document.getElementById('game-zone');
-    zone.innerHTML = '';
-
-    if (currentTerm === 1) {
-      // Term 1: Cauldron Vault (Place Value & Rounding)
-      const num = Math.floor(Math.random() * 8999) + 1000;
-      const roundTo = [10, 100, 1000][Math.floor(Math.random() * 3)];
-      currentAnswer = Math.round(num / roundTo) * roundTo;
-      setCharacter('wednesday', `Round ${num} to the nearest ${roundTo}. Don't fail me.`);
-
-      zone.innerHTML = `<div class="problem-title">Round ${num} to nearest ${roundTo}</div><div class="options-grid" id="opts"></div>`;
-      renderOptions(currentAnswer, roundTo);
-
-    } else if (currentTerm === 2) {
-      // Term 2: Monster Buffet (Multiplication & Division)
-      const a = Math.floor(Math.random() * 11) + 2;
-      const b = Math.floor(Math.random() * 11) + 2;
-      currentAnswer = a * b;
-      setCharacter('thing', `Thing serves ${a} monster plates with ${b} eyeballs each! How many in total?`);
-
-      zone.innerHTML = `<div class="problem-title">${a} × ${b} = ?</div><div class="options-grid" id="opts"></div>`;
-      renderOptions(currentAnswer, 5);
-
-    } else if (currentTerm === 3) {
-      // Term 3: Pizza Shop (Fractions & Decimals)
-      const dec = (Math.floor(Math.random() * 9) + 1) / 10;
-      currentAnswer = `${dec * 10}/10`;
-      setCharacter('mortis', `Chef Mortis sliced a pizza into 10 pieces. Which fraction equals ${dec}?`);
-
-      zone.innerHTML = `<div class="problem-title">Convert ${dec} to a Fraction</div><div class="options-grid" id="opts"></div>`;
-      renderOptionsText([currentAnswer, `${(dec*10)+1}/10`, `${(dec*10)-1 || 2}/10`, `${dec*10}/100`]);
-
-    } else if (currentTerm === 4) {
-      // Term 4: Expansion (Area & Perimeter)
-      const length = Math.floor(Math.random() * 8) + 2;
-      const width = Math.floor(Math.random() * 6) + 2;
-      currentAnswer = length * width;
-      setCharacter('gomez', `Ah, area calculations! Find the Area of a Gothic booth (${length}m × ${width}m).`);
-
-      zone.innerHTML = `<div class="problem-title">Area = ${length}m × ${width}m</div><div class="options-grid" id="opts"></div>`;
-      renderOptions(currentAnswer, 4);
-    }
-  }
-
-  function renderOptions(correct, variance) {
-    let choices = new Set([correct]);
-    while (choices.size < 4) {
-      let wrong = correct + (Math.floor(Math.random() * 5) - 2) * variance;
-      if (wrong > 0 && wrong !== correct) choices.add(wrong);
-    }
-    renderOptionsText(Array.from(choices).sort(() => Math.random() - 0.5));
-  }
-
-  function renderOptionsText(arr) {
-    const container = document.getElementById('opts');
-    arr.forEach(val => {
-      const btn = document.createElement('button');
-      btn.className = 'opt-btn';
-      btn.innerText = val;
-      btn.onclick = () => checkAnswer(val.toString() === currentAnswer.toString());
-      container.appendChild(btn);
-    });
-  }
-
-  function checkAnswer(isCorrect) {
-    if (isCorrect) {
-      playSound('correct');
-      triggerConfetti();
-      coins += 25;
-      score += 100;
-      localStorage.setItem('gothic_coins', coins);
-      document.getElementById('coin-count').innerText = coins;
-      document.getElementById('score-count').innerText = score;
-      generateProblem();
-    } else {
-      playSound('wrong');
-      alert("🕸️ Incorrect! Try again.");
-    }
-  }
-
-  // Shop System
-  const shopCatalog = [
-    { name: "Cobweb Chandelier", cost: 50, icon: "🕯️" },
-    { name: "Velvet Booth", cost: 100, icon: "🛋️" },
-    { name: "Stone Gargoyle", cost: 150, icon: "🗿" },
-    { name: "Gothic Counter", cost: 200, icon: "🏰" }
-  ];
-
-  function openShop() {
-    const container = document.getElementById('shop-items-container');
-    container.innerHTML = '';
-    shopCatalog.forEach((item, index) => {
-      const isOwned = unlockedDecor.includes(index);
-      const div = document.createElement('div');
-      div.className = 'shop-item';
-      div.innerHTML = `
-        <span>${item.icon} ${item.name} (${item.cost} 🪙)</span>
-        <button class="action-btn" onclick="buyDecor(${index})" ${isOwned ? 'disabled' : ''}>
-          ${isOwned ? 'Unlocked' : 'Buy'}
-        </button>`;
-      container.appendChild(div);
-    });
-    document.getElementById('shop-modal').style.display = 'block';
-  }
-
-  function buyDecor(index) {
-    const item = shopCatalog[index];
-    if (coins >= item.cost && !unlockedDecor.includes(index)) {
-      coins -= item.cost;
-      unlockedDecor.push(index);
-      localStorage.setItem('gothic_coins', coins);
-      localStorage.setItem('gothic_decor', JSON.stringify(unlockedDecor));
-      document.getElementById('coin-count').innerText = coins;
-      playSound('correct');
-      openShop();
-    } else {
-      playSound('wrong');
-    }
-  }
-
-  function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
-
-  function shareWhatsApp() {
-    const url = window.location.href.split('?')[0];
-    const text = encodeURIComponent(`🕷️ Can you beat my score of ${score} pts in Wednesday's Gothic Math Diner? Play here: ${url}?challengeScore=${score}`);
-    window.open(`https://wa.me/?text=${text}`, '_blank');
-  }
-
-  // Initial Load
-  loadTerm(1);
-</script>
-
-</body>
-</html>
+    document.getElementById('char-name').innerText = activeSpeaker;
+    document.getElementById('question-text').innerText = question;
+  
